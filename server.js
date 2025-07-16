@@ -115,6 +115,31 @@ app.get("/api/health", (req, res) => {
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
+app.get('/api/test-email', async (req, res) => {
+  try {
+    const nodemailer = require("nodemailer");
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.OWNER_EMAIL,
+        pass: process.env.OWNER_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Test" <${process.env.OWNER_EMAIL}>`,
+      to: process.env.OWNER_EMAIL,
+      subject: "Test Email",
+      text: "This is a test email from backend.",
+    });
+
+    res.json({ success: true, message: "Test email sent" });
+  } catch (err) {
+    console.error("Test email failed:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;
